@@ -14,8 +14,8 @@ function setupMethods (soljson) {
 
   var wrapCallback = function (callback) {
     assert(typeof callback === 'function', 'Invalid callback specified.');
-    return function (path, contents, error) {
-      var result = callback(soljson.Pointer_stringify(path));
+    return function (kind, data, contents, error) {
+      var result = callback(soljson.Pointer_stringify(kind), soljson.Pointer_stringify(data));
       if (typeof result.contents === 'string') {
         copyString(result.contents, contents);
       }
@@ -26,20 +26,48 @@ function setupMethods (soljson) {
   };
 
   // This calls compile() with args || cb
-  var runWithReadCallback = function (readCallback, compile, args) {
+  var runWithCallbacks = function (callbacks, compile, args) {
+    var readCallback;
+    var smtSolverCallback;
+
+    if (typeof callbacks === 'function') {
+      readCallback = callbacks;
+    } else if (callbacks !== undefined) {
+      readCallback = callbacks.importCallback;
+      smtSolverCallback = callbacks.smtSolverCallback;
+    }
+
     if (readCallback === undefined) {
-      readCallback = function (path) {
+      readCallback = function (data) {
         return {
           error: 'File import callback not supported'
         };
       };
     }
 
+    if (smtSolverCallback === undefined) {
+      smtSolverCallback = function (data) {
+        return {
+          error: 'SMT solver callback not supported'
+        };
+      };
+    }
+
+    var singleCallback = function (kind, data) {
+      if (kind === 'source') {
+        return readCallback(data);
+      } else if (kind === 'smt-query') {
+        return smtSolverCallback(data);
+      } else {
+        assert(false, 'Invalid callback kind specified.');
+      }
+    };
+
     // This is to support multiple versions of Emscripten.
     var addFunction = soljson.addFunction || soljson.Runtime.addFunction;
     var removeFunction = soljson.removeFunction || soljson.Runtime.removeFunction;
 
-    var cb = addFunction(wrapCallback(readCallback));
+    var cb = addFunction(wrapCallback(singleCallback));
     var output;
     try {
       args.push(cb);
@@ -66,7 +94,7 @@ function setupMethods (soljson) {
   if ('_compileJSONCallback' in soljson) {
     var compileInternal = soljson.cwrap('compileJSONCallback', 'string', ['string', 'number', 'number']);
     compileJSONCallback = function (input, optimize, readCallback) {
-      return runWithReadCallback(readCallback, compileInternal, [ input, optimize ]);
+      return runWithCallbacks(readCallback, compileInternal, [ input, optimize ]);
     };
   }
 
@@ -74,13 +102,13 @@ function setupMethods (soljson) {
   if ('_compileStandard' in soljson) {
     var compileStandardInternal = soljson.cwrap('compileStandard', 'string', ['string', 'number']);
     compileStandard = function (input, readCallback) {
-      return runWithReadCallback(readCallback, compileStandardInternal, [ input ]);
+      return runWithCallbacks(readCallback, compileStandardInternal, [ input ]);
     };
   }
   if ('_solidity_compile' in soljson) {
     var solidityCompile = soljson.cwrap('solidity_compile', 'string', ['string', 'number']);
-    compileStandard = function (input, readCallback) {
-      return runWithReadCallback(readCallback, solidityCompile, [ input ]);
+    compileStandard = function (input, callbacks) {
+      return runWithCallbacks(callbacks, solidityCompile, [ input ]);
     };
   }
 
