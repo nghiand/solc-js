@@ -1,6 +1,5 @@
-[![Build Status](https://img.shields.io/travis/ethereum/solc-js.svg?branch=master&style=flat-square)](https://travis-ci.org/ethereum/solc-js)
-[![CircleCI](https://img.shields.io/circleci/project/github/ethereum/solc-js/master.svg?style=flat-square)](https://circleci.com/gh/ethereum/solc-js/tree/master)
-[![Coverage Status](https://img.shields.io/coveralls/ethereum/solc-js.svg?style=flat-square)](https://coveralls.io/r/ethereum/solc-js)
+[![Build Status](https://travis-ci.com/nghiand/solc-js.svg?branch=master)](https://travis-ci.com/nghiand/solc-js)
+[![Coverage Status](https://coveralls.io/repos/github/nghiand/solc-js/badge.svg?branch=master)](https://coveralls.io/github/nghiand/solc-js?branch=master)
 
 # solc-js
 
