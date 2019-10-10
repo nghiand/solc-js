@@ -104,12 +104,12 @@ contract TokenCreation is TokenCreationInterface, Token {
         if (now < closingTime && msg.value > 0
             && (privateCreation == 0x0000000000000000000000000000000000000000 || privateCreation == msg.sender)) {
 
-            uint token = (msg.value * 20) / divisor();
-            address(extraBalance).call.value(msg.value - token)("");
-            balances[_tokenHolder] += token;
-            totalSupply += token;
+            uint tokenValue = (msg.value * 20) / divisor();
+            address(extraBalance).call.value(msg.value - tokenValue)("");
+            balances[_tokenHolder] += tokenValue;
+            totalSupply += tokenValue;
             weiGiven[_tokenHolder] += msg.value;
-            emit CreatedToken(_tokenHolder, token);
+            emit CreatedToken(_tokenHolder, tokenValue);
             if (totalSupply >= minTokensToCreate && !isFueled) {
                 isFueled = true;
                 emit FuelingToDate(totalSupply);
