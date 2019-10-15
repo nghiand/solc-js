@@ -1,6 +1,6 @@
 {
-  "name": "solc",
-  "version": "0.5.12",
+  "name": "solc-mcash",
+  "version": "0.5.4",
   "description": "Solidity compiler",
   "main": "index.js",
   "bin": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ethereum/solc-js.git"
+    "url": "git+https://github.com/nghiand/solc-js.git"
   },
   "keywords": [
     "ethereum",
