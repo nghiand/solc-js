@@ -97,19 +97,19 @@ contract TokenCreation is TokenCreationInterface, Token {
         name = _tokenName;
         symbol = _tokenSymbol;
         decimals = _decimalPlaces;
-        
+
     }
 
     function createTokenProxy(address _tokenHolder) payable returns (bool success) {
         if (now < closingTime && msg.value > 0
             && (privateCreation == 0 || privateCreation == msg.sender)) {
 
-            uint token = (msg.value * 20) / divisor();
-            extraBalance.call.value(msg.value - token)();
-            balances[_tokenHolder] += token;
-            totalSupply += token;
+            uint tokenValue = (msg.value * 20) / divisor();
+            extraBalance.call.value(msg.value - tokenValue)();
+            balances[_tokenHolder] += tokenValue;
+            totalSupply += tokenValue;
             weiGiven[_tokenHolder] += msg.value;
-            CreatedToken(_tokenHolder, token);
+            CreatedToken(_tokenHolder, tokenValue);
             if (totalSupply >= minTokensToCreate && !isFueled) {
                 isFueled = true;
                 FuelingToDate(totalSupply);
